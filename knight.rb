@@ -2,7 +2,7 @@ require 'byebug'
 require_relative '00_tree_node.rb'
 class Knight
 
-attr_accessor :position, :visited_positions, :possible_pos, :parent, :root_node, :visited_nodes
+attr_accessor :position, :visited_positions, :root_node
 
   def initialize(pos)
     @position = pos
@@ -14,23 +14,15 @@ attr_accessor :position, :visited_positions, :possible_pos, :parent, :root_node,
 
   def new_move_positions(pos)
     new_moves = valid_moves(pos)
-    p "visited_pos #{visited_positions}"
-    p "og array #{new_moves}"
     new_moves.reject! {|move| move if visited_positions.include?(move)}
     new_moves.each {|move| visited_positions << move}
     new_moves
   end
 
-  # def new_move_positions(pos)
-  #   valid_moves(pos)
-  #     .reject { |new_pos| visited_positions.include?(new_pos) }
-  #     .each { |new_pos| visited_positions << new_pos }
-  # end
 
   def build_move_tree
    #debugger
    self.root_node = PolyTreeNode.new(position)
-
    queue = [root_node]
     until queue.empty?
       current_node = queue.shift
@@ -43,8 +35,21 @@ attr_accessor :position, :visited_positions, :possible_pos, :parent, :root_node,
     end
   end
 
+  def find_path(end_pos)
+    end_node = root_node.dfs(end_pos)
+    path = trace_path_back(end_node)
+    p path.reverse
+  end
 
-
+  def trace_path_back(end_node)
+    out = []
+    current_node = end_node
+    until current_node.parent.nil?
+      out << current_node.value
+      current_node = current_node.parent
+    end
+    out << current_node.value
+  end
 
   def valid_moves(pos)
     valid_moves = []
@@ -75,3 +80,4 @@ attr_accessor :position, :visited_positions, :possible_pos, :parent, :root_node,
 end
 
 test = Knight.new([0,0])
+test.find_path([3,1])
